@@ -1,6 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"errors"
+	"fmt"
+	"os"
+)
 
 func calculation(revenueValue float64, expenses float64, taxRate float64) (float64, float64, float64) {
 
@@ -12,27 +16,37 @@ func calculation(revenueValue float64, expenses float64, taxRate float64) (float
 
 }
 
-func valuesInput(infoText string) float64 {
-
+func valuesInput(infoText string) (float64, error) {
 	var value float64
 
-	fmt.Print(infoText)
-	fmt.Scan(&value)
+	for {
+		fmt.Print(infoText)
+		fmt.Scan(&value)
 
-	return value
+		if value > 0 {
+			return value, nil
+		}
 
+		fmt.Println(errors.New("ERRO! Positive numbers only"))
+	}
+}
+
+func saveValuesFile(ebt, profit, ratio float64) {
+	balanceText := fmt.Sprintf("Ebt: %.2f \nProfit: %.2f \nRatio: %.2f", ebt, profit, ratio)
+	os.WriteFile("results", []byte(balanceText), 0644)
 }
 
 func main() {
 
-	revenueValue := valuesInput("Revenue value: ")
-	expenses := valuesInput("Expenses value: ")
-	taxRate := valuesInput("Tax Rate: ")
+	revenueValue, _ := valuesInput("Revenue value: ")
+	expenses, _ := valuesInput("Expenses value: ")
+	taxRate, _ := valuesInput("Tax Rate: ")
 
 	ebt, profit, ratio := calculation(revenueValue, expenses, taxRate)
+	saveValuesFile(ebt, profit, ratio)
 
 	fmt.Printf("Ebt: %.2f", ebt)
-	fmt.Printf("Profit: %.2f", profit)
-	fmt.Printf("Ratio: %.2f", ratio)
+	fmt.Printf("\nProfit: %.2f", profit)
+	fmt.Printf("\nRatio: %.2f", ratio)
 
 }
