@@ -1,7 +1,10 @@
 package main
 
 import (
+	"errors"
 	"fmt"
+	"os"
+	"strconv"
 )
 
 type Operacao interface {
@@ -41,20 +44,37 @@ func (banco *Banco) RealizarOperacao(op Operacao) {
 		return
 	}
 	banco.Saldo = novoSaldo
+	writeFloatToFile(banco.Saldo, "saldo.txt")
 	fmt.Println("Operação realizada com sucesso!")
 }
 
+func getFloatToFile(fileName string, defaultValueReturn float64) (float64, error) {
+	data, err := os.ReadFile(fileName)
+
+	if err != nil {
+		return defaultValueReturn, errors.New("File not found")
+	}
+
+	valueText := string(data)
+	value, err := strconv.ParseFloat(valueText, 64)
+
+	return value, nil
+}
+
+func writeFloatToFile(value float64, fileName string) {
+	valueText := fmt.Sprint(value)
+	os.WriteFile(fileName, []byte(valueText), 0644)
+}
+
 func main() {
-	banco := Banco{Saldo: 0.0}
-	var opt int
+
+	saldoInicial, _ := getFloatToFile("saldo.txt", 0.0)
+	banco := Banco{Saldo: saldoInicial}
 
 	for {
-		fmt.Println("\n---- BANCO ----")
-		fmt.Println("1. Verificar saldo")
-		fmt.Println("2. Depositar dinheiro")
-		fmt.Println("3. Sacar dinheiro")
-		fmt.Println("4. Sair")
-		fmt.Print("Escolha uma opção: ")
+
+		menu()
+		var opt int
 		fmt.Scan(&opt)
 
 		switch opt {
