@@ -41,7 +41,7 @@ func (note Note) Save() error {
 	return os.WriteFile(fileName, json, 0644)
 }
 
-func (note Note) ToString() {
+func (note Note) Display() {
 	fmt.Println("Note title: ", note.Title)
 	fmt.Println("---- Note content below ----")
 	fmt.Println(note.Content)
